@@ -36,6 +36,30 @@
   font-size: 17px;
 }
 
+.cart-badge {
+  font-size: 0.7rem;
+  position: absolute;
+  top: 5px;
+  left: 80%;
+  transform: translate(-50%, 10%);
+}
+
+@media (max-width: 575.98px) {
+  .cart-badge {
+    left: 60%;
+    font-size: 0.6rem;
+    top: 4px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .cart-badge {
+    left: 60%;
+    font-size: 0.65rem;
+    top: 5px;
+  }
+}
+
 @keyframes logout {
   0% {
     transform: translateX(5px);
@@ -43,4 +67,22 @@
   100% {
     transform: translateX(0);
   }
+}
+
+.wishlist-icon {
+  color: #dc3545;
+}
+
+.spanWishlist{
+  position: absolute;
+  top: 0;
+  right: 5px;
+  background-color: #dc3545;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: white;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
 }

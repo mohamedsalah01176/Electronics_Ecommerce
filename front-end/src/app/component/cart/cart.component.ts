@@ -1,9 +1,10 @@
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CartService } from '../../util/services/cart.service';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-cart',
@@ -12,7 +13,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css'],
 })
-export class CartComponent implements OnInit {
+export class CartComponent implements OnInit, OnDestroy {
   products: any[] = [];
   totalCheckout: number = 0;
   couponCode: string = '';
@@ -21,10 +22,28 @@ export class CartComponent implements OnInit {
   discountAmount: number = 0;
   isLoading: boolean = true;
 
-  constructor(private cartService: CartService) {}
-  serverURL = 'http://localhost:4000/uploads/';
+  cartCount: number = 0;
+  private subscriptions = new Subscription();
+
+  serverURL = 'https://ecommerceapi-production-8d5f.up.railway.app/uploads/';
+
+  constructor(
+    private cartService: CartService,
+    private snackBar: MatSnackBar
+  ) {}
+
   ngOnInit(): void {
     this.loadCart();
+
+    // this.subscriptions.add(
+    //   this.cartService.cartCount$.subscribe((count) => {
+    //     this.cartCount = count;
+    //   })
+    // );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   private updateLocalStorage() {
@@ -69,8 +88,7 @@ export class CartComponent implements OnInit {
     this.cartService.updateQuantity(productId, quantity).subscribe(
       (response) => {
         if (response.status === 'success') {
-          this.calcCheckout();
-          this.updateLocalStorage();
+          this.loadCart();
         }
       },
       (error) => {
@@ -83,14 +101,22 @@ export class CartComponent implements OnInit {
     this.cartService.removeProduct(productId).subscribe(
       (response) => {
         if (response.status === 'success') {
-          this.products = this.products.filter(
-            (p) => p.productId._id !== productId
-          );
-          this.calcCheckout();
-          this.updateLocalStorage();
+          this.loadCart();
+          this.snackBar.open('Product deleted successfully', 'close', {
+            duration: 4000,
+            panelClass: ['custom-snackbar'],
+            verticalPosition: 'top',
+            horizontalPosition: 'right',
+          });
         }
       },
       (error) => {
+        this.snackBar.open('Failed in deleted Product', 'close', {
+          duration: 4000,
+          panelClass: ['custom-snackbar'],
+          verticalPosition: 'top',
+          horizontalPosition: 'right',
+        });
         console.error('Failed to remove product:', error);
       }
     );
